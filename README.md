@@ -23,7 +23,7 @@ My Posts (with stats mentioned below)  -----
     Number of likes  ----
     Number of comments  ----
     Views   -------
-Follow other authors
-Other Author's profile view
+Follow other authors -----
+Other Author's profile view  ------
 
 chenged 

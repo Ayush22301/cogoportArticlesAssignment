@@ -1,6 +1,6 @@
 # app/controllers/users_controller.rb
 class UsersController < ApplicationController
-    before_action :authenticate_user, only: [:profile, :my_posts]
+    before_action :authenticate_user, only: [:profile, :my_posts, :follow_user]
 
     def create
         author = Author.find_or_create_by(name: user_params[:name]) # Create a new author based on the user's name
@@ -8,7 +8,8 @@ class UsersController < ApplicationController
           name: user_params[:name],
           email: user_params[:email],
           password: user_params[:password],
-          author: author # Associate the user with the author
+          author: author,
+          following_ids: ""
         )
     
         if @user.save
@@ -53,7 +54,25 @@ class UsersController < ApplicationController
       render json: response, status: :ok
     end
 
+    def follow_user
+      target_user_id = params[:id].to_i
+      if current_user.follow_user(target_user_id)
+        render json: current_user.following_ids
+      else
+        render json: { error: 'Failed to follow the user.' }, status: :unprocessable_entity
+      end
+    end
 
+    def show_author
+      author_username = params[:username]
+      user = User.find_by(name: author_username)
+
+    if user
+      render json: user, status: :ok
+    else
+      render json: { error: 'User not found.' }, status: :not_found
+    end
+  end
 
     private
   

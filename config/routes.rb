@@ -33,5 +33,10 @@ Rails.application.routes.draw do
 
   # My Posts
   get '/my_posts', to: 'users#my_posts'
+
+  # follow_user
+  post '/follow_user', to: 'users#follow_user'
+
+  get '/show_author', to: 'users#show_author'
   
 end
