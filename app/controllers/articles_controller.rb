@@ -337,6 +337,36 @@ class ArticlesController < ApplicationController
 
     end
 
+    def top_posts
+      all_articles = Article.all
+      # top_articles = all_articles.sort_by { |article| -(article.no_of_likes + article.no_of_comments) }
+
+      top_articles = all_articles.sort do |a, b|
+        likes_comparison = b.no_of_likes <=> a.no_of_likes
+        likes_comparison.zero? ? b.no_of_comments <=> a.no_of_comments : likes_comparison
+      end
+
+
+      response = top_articles.map do |article|
+        {
+          id: article.id,
+          title: article.title,
+          author: article.author,
+          description: article.description,
+          genre: article.genre,
+          image_url: article.image.attached? ? url_for(article.image) : nil,
+          created_at: article.created_at,
+          updated_at: article.updated_at,
+          no_of_likes: article.no_of_likes,
+          no_of_comments: article.no_of_comments,
+          likes: article.likes,
+          comments: article.comments
+        }
+    end
+    render json: response
+    end
+
+
     private
 
     def article_params
