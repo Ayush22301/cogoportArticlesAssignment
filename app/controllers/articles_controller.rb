@@ -367,6 +367,8 @@ class ArticlesController < ApplicationController
     end
 
 
+    
+
     private
 
     def article_params

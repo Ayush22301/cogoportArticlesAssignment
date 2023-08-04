@@ -26,4 +26,8 @@ My Posts (with stats mentioned below)  -----
 Follow other authors -----
 Other Author's profile view  ------
 
-chenged 
+
+
+Pending
+1 article_ids array
+2 update and delete of users

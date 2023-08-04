@@ -1,6 +1,6 @@
 # app/controllers/users_controller.rb
 class UsersController < ApplicationController
-    before_action :authenticate_user, only: [:profile, :my_posts, :follow_user,:addLike, :addComment, :recommendedPosts]
+    before_action :authenticate_user, only: [:profile, :my_posts, :follow_user,:addLike, :addComment, :recommendedPosts, :similarAuthorPosts]
 
     def create
         author = Author.find_or_create_by(name: user_params[:name]) # Create a new author based on the user's name
@@ -10,7 +10,8 @@ class UsersController < ApplicationController
           password: user_params[:password],
           author: author,
           following_ids: "",
-          interests: user_params[:interests]
+          interests: user_params[:interests],
+          specializations: user_params[:specializations]
         )
     
         if @user.save
@@ -173,10 +174,59 @@ class UsersController < ApplicationController
     render json: response, status: :ok
   end
 
+  def allTopics
+    unique_genres = Article.distinct.pluck(:genre)
+    render json: unique_genres
+  end
+
+  def similarAuthorPosts
+    specArray = current_user.specializations.split(',')
+    reqUsers = []
+    reqUsers = User.select do |user|
+      if user.specializations.nil?
+        false
+      else
+        userspecArray = user.specializations.split(',')
+        !(userspecArray & specArray).empty?
+      end 
+    end
+
+    articles = []
+
+    reqUsers.each do |user|
+      author = user.author
+      article_ids = author&.article_ids || []
+      article_ids.each do |article_id|
+        article = Article.find_by(id: article_id)
+        articles.push(article)
+      end
+    end
+
+    response = articles.map do |article|
+      {
+        id: article.id,
+        title: article.title,
+        author: article.author,
+        description: article.description,
+        genre: article.genre,
+        image_url: article.image.attached? ? url_for(article.image) : nil,
+        created_at: article.created_at,
+        updated_at: article.updated_at,
+        no_of_likes: article.no_of_likes,
+        no_of_comments: article.no_of_comments,
+        likes: article.likes,
+        comments: article.comments,
+        views: article.views
+      }
+    end
+      render json: response, status: :ok
+  end
+
+
   private
   
     def user_params
-      params.permit(:name, :email, :password, :password_confirmation,:interests)
+      params.permit(:name, :email, :password, :password_confirmation, :interests, :specializations)
     end
   end
   
