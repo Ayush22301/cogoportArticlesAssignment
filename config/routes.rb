@@ -62,7 +62,11 @@ Rails.application.routes.draw do
 
   get "/showsaved", to: "users#showsaved"
 
+  post "/createlist", to: "users#createlist"
 
+  get "/viewlistarticles", to: "users#viewlistarticles"
+
+  get "/sharelist", to: "users#sharelist"
   ###revision history
 
   get "/revision_history", to: "revisions#revision_history"
