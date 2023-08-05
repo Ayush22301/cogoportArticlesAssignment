@@ -64,13 +64,17 @@ class UsersController < ApplicationController
     end
 
     def follow_user
-      target_user_id = params[:id].to_i
-      if current_user.follow_user(target_user_id)
-        render json: current_user.following_ids
-      else
-        render json: { error: 'Failed to follow the user.' }, status: :unprocessable_entity
+      id = params[:id].to_s
+      arr = current_user.following_ids.split(',')
+      
+      unless arr.include?(id)
+        arr << id
+        current_user.following_ids = arr.join(',')
+        current_user.save
       end
+      render json: current_user.following_ids
     end
+    
 
     def show_author
       author_username = params[:username]

@@ -394,7 +394,8 @@ class ArticlesController < ApplicationController
           no_of_comments: article.no_of_comments,
           likes: article.likes,
           comments: article.comments,
-          read_time: article.read_time
+          read_time: article.read_time,
+          views: article.views
         }
     end
     render json: response
