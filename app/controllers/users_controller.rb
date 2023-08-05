@@ -1,6 +1,6 @@
 # app/controllers/users_controller.rb
 class UsersController < ApplicationController
-    before_action :authenticate_user, only: [:profile, :my_posts, :follow_user,:addLike, :addComment, :recommendedPosts, :similarAuthorPosts, :subscribe, :show, :showDrafts]
+    before_action :authenticate_user, only: [:profile, :my_posts, :follow_user,:addLike, :addComment, :recommendedPosts, :similarAuthorPosts, :subscribe, :show, :showDrafts, :savelater, :showsaved]
 
     def create
 
@@ -350,6 +350,39 @@ class UsersController < ApplicationController
         }
       end
         render json: response, status: :ok
+  end
+
+  def savelater
+    item = Bookmark.new(
+      user_id: current_user.id,
+      article_id: params[:id]
+    )
+    item.save
+    render json: item
+  end
+
+  def showsaved
+    saved_articles = Bookmark.where(user_id: current_user.id)
+    article_ids = saved_articles.pluck(:article_id)
+    articles = Article.where(id: article_ids)
+    response = articles.map do |article|
+      {
+        id: article.id,
+        title: article.title,
+        author: article.author,
+        description: article.description,
+        genre: article.genre,
+        image_url: article.image.attached? ? url_for(article.image) : nil,
+        created_at: article.created_at,
+        updated_at: article.updated_at,
+        no_of_likes: article.no_of_likes,
+        no_of_comments: article.no_of_comments,
+        likes: article.likes,
+        comments: article.comments,
+        read_time: article.read_time
+      }
+    end
+    render json: response
   end
 
   private

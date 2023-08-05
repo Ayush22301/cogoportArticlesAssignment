@@ -58,6 +58,10 @@ Rails.application.routes.draw do
 
   get "/showDrafts", to: "users#showDrafts"
 
+  post "/savelater", to: "users#savelater"
+
+  get "/showsaved", to: "users#showsaved"
+
 
   ###revision history
 
