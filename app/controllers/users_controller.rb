@@ -1,6 +1,6 @@
 # app/controllers/users_controller.rb
 class UsersController < ApplicationController
-    before_action :authenticate_user, only: [:profile, :my_posts, :follow_user,:addLike, :addComment, :recommendedPosts, :similarAuthorPosts]
+    before_action :authenticate_user, only: [:profile, :my_posts, :follow_user,:addLike, :addComment, :recommendedPosts, :similarAuthorPosts, :subscribe, :show]
 
     def create
         author = Author.find_or_create_by(name: user_params[:name]) # Create a new author based on the user's name
@@ -11,7 +11,9 @@ class UsersController < ApplicationController
           author: author,
           following_ids: "",
           interests: user_params[:interests],
-          specializations: user_params[:specializations]
+          specializations: user_params[:specializations],
+          expires_at: Time.now,
+          last_viewed: Time.now
         )
     
         if @user.save
@@ -222,6 +224,97 @@ class UsersController < ApplicationController
       render json: response, status: :ok
   end
 
+  def subscribe
+    subscription_plan = params[:subscription_plan]
+    case subscription_plan
+    when 'free'
+      current_user.update(subscription_plan: 'free', remaining_posts: 1, expires_at: Time.now + 1.month)
+    when '3_posts'
+      # Implement payment logic using Razorpay API to charge $3
+      #-----consider always done
+      current_user.update(subscription_plan: '3_posts', remaining_posts: 3, expires_at: Time.now + 1.month)
+    when '5_posts'
+      # Implement payment logic using Razorpay API to charge $5
+      current_user.update(subscription_plan: '5_posts', remaining_posts: 5, expires_at: Time.now + 1.month)
+    when '10_posts'
+      # Implement payment logic using Razorpay API to charge $10
+      current_user.update(subscription_plan: '10_posts', remaining_posts: 10, expires_at: Time.now + 1.month)
+    else
+      render json: { error: 'Invalid subscription plan' }, status: :unprocessable_entity
+      return
+    end
+
+    render json: { message: 'Subscription successful' , user: current_user }, status: :ok
+  rescue StandardError => e
+    render json: { error: e.message }, status: :unprocessable_entity
+  end
+
+  # def reset_remaining_posts
+  #   current_user.update(remaining_posts: current_user.subscription_plan.to_i)
+  #   render json: { message: 'Remaining posts reset' }, status: :ok
+  # end
+
+  def show
+
+    if !current_user
+      render json: { error: 'Please login to view full Article' }
+      return
+    end
+
+    article = Article.find_by(id: params[:id])
+
+    if article
+
+      crnt = Time.now
+
+      if current_user.last_viewed.to_date != crnt.to_date
+        current_user.update(remaining_posts: current_user.subscription_plan.to_i)
+      end
+
+      if current_user.expires_at < crnt
+        current_user.update(subscription_plan: 'free', remaining_posts: 1, expires_at: (crnt + 1.month))
+      end
+
+      if current_user.remaining_posts == 0
+        render json: { error: 'Your daily limit of viewing posts is reached. Please try tomorrow or upgrade to higher plan' }
+        return
+      end
+      
+
+      # current_user.save
+
+      current_user.update(last_viewed: crnt)
+      current_user.decrement!(:remaining_posts)
+
+      current_user.save
+      
+      article.increment!(:views)
+
+      article.save
+
+      response = {
+        id: article.id,
+        title: article.title,
+        author: article.author,
+        description: article.description,
+        genre: article.genre,
+        image_url: article.image.attached? ? url_for(article.image) : nil,
+        created_at: article.created_at,
+        updated_at: article.updated_at,
+        no_of_likes: article.no_of_likes,
+        no_of_comments: article.no_of_comments,
+        likes: article.likes,
+        comments: article.comments,
+        views: article.views,
+        rem: current_user.remaining_posts
+      }
+
+      render json: response, status: :ok
+    else
+      render json: { error: 'Article not found' }, status: :not_found
+    end
+
+  end
 
   private
   

@@ -18,7 +18,7 @@ Rails.application.routes.draw do
 
   get "articles/all", to: "articles#all"
 
-  put "articles/show", to: "articles#show"
+  # put "articles/show", to: "articles#show"
 
   get "articles/topPosts", to: "articles#top_posts"
 
@@ -51,5 +51,9 @@ Rails.application.routes.draw do
   get "/allTopics", to: "users#allTopics"
 
   get "/similarAuthorPosts", to: "users#similarAuthorPosts"
+
+  put "/subscribe", to: "users#subscribe"
+
+  put "/show", to: "users#show"
   
 end
