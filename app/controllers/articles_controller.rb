@@ -43,7 +43,8 @@ class ArticlesController < ApplicationController
               no_of_likes: article.no_of_likes,
               no_of_comments: article.no_of_comments,
               likes: article.likes,
-              comments: article.comments
+              comments: article.comments,
+              read_time: article.read_time
             }
         end
         render json: response
@@ -101,7 +102,8 @@ class ArticlesController < ApplicationController
           no_of_likes: article.no_of_likes,
           no_of_comments: article.no_of_comments,
           likes: article.likes,
-          comments: article.comments
+          comments: article.comments,
+          read_time: article.read_time
         }
       end
     
@@ -143,7 +145,8 @@ class ArticlesController < ApplicationController
           no_of_likes: article.no_of_likes,
           no_of_comments: article.no_of_comments,
           likes: article.likes,
-          comments: article.comments
+          comments: article.comments,
+          read_time: article.read_time
         }
       end
     
@@ -173,7 +176,8 @@ class ArticlesController < ApplicationController
             no_of_likes: article.no_of_likes,
             no_of_comments: article.no_of_comments,
             likes: article.likes,
-            comments: article.comments
+            comments: article.comments,
+            read_time: article.read_time
           }
         end
     
@@ -187,6 +191,12 @@ class ArticlesController < ApplicationController
         # Find or create the author based on the author name
         author = Author.find_or_create_by(name: permitted_params[:author])
 
+        des = permitted_params[:description]
+
+        wordsCount = des.split(/\s+/).length
+
+        rtime = wordsCount/200.0
+
         # Create the article and associate it with the author
         article = Article.new(
             title: permitted_params[:title],
@@ -196,7 +206,8 @@ class ArticlesController < ApplicationController
             no_of_likes: 0,
             no_of_comments: 0,
             likes: [],
-            comments: []
+            comments: [],
+            read_time: rtime
         )
 
         # Attach the 'image' file to the article if present
@@ -219,7 +230,8 @@ class ArticlesController < ApplicationController
             no_of_likes: article.no_of_likes,
             no_of_comments: article.no_of_comments,
             likes: article.likes,
-            comments: article.comments
+            comments: article.comments,
+            read_time: rtime
             }
 
             render json: response, status: :created
@@ -239,6 +251,16 @@ class ArticlesController < ApplicationController
         # Permit only the specific fields from the request parameters
         permitted_params = article_params.except(:author)
 
+        if permitted_params[:description]
+          des = permitted_params[:description]
+
+          wordsCount = des.split(/\s+/).length
+
+          rtime = wordsCount/200.0
+
+          permitted_params[:read_time] = rtime
+        end
+
         # Update the article with the permitted parameters
         if article.update(permitted_params)
             # Build a JSON response with the updated article details
@@ -254,7 +276,8 @@ class ArticlesController < ApplicationController
             no_of_likes: article.no_of_likes,
             no_of_comments: article.no_of_comments,
             likes: article.likes,
-            comments: article.comments
+            comments: article.comments,
+            read_time: rtime
             }
 
             render json: response
@@ -301,7 +324,8 @@ class ArticlesController < ApplicationController
             no_of_likes: article.no_of_likes,
             no_of_comments: article.no_of_comments,
             likes: article.likes,
-            comments: article.comments
+            comments: article.comments,
+            read_time: article.read_time
           }
       end
       render json: response
@@ -333,8 +357,8 @@ class ArticlesController < ApplicationController
         end
       end
     
-      render json: top_articles, status: :ok
-    end
+    #   render json: top_articles, status: :ok
+    # end
     
 
 
@@ -351,7 +375,8 @@ class ArticlesController < ApplicationController
           no_of_likes: article.no_of_likes,
           no_of_comments: article.no_of_comments,
           likes: article.likes,
-          comments: article.comments
+          comments: article.comments,
+          read_time: article.read_time
         }
     end
     render json: response
