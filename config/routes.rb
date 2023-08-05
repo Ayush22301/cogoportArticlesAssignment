@@ -57,5 +57,10 @@ Rails.application.routes.draw do
   put "/show", to: "users#show"
 
   get "/showDrafts", to: "users#showDrafts"
+
+
+  ###revision history
+
+  get "/revision_history", to: "revisions#revision_history"
   
 end

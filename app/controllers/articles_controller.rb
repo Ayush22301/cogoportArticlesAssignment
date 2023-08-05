@@ -283,6 +283,15 @@ class ArticlesController < ApplicationController
             isDraft: article.isDraft
             }
 
+            revision = Revision.new(
+              article_id: article.id,
+              title: article.title,
+              content: article.description,
+              revision_time: Time.now
+            )
+
+            revision.save
+
             render json: response
         else
             render json: { error: 'Failed to update the article' }, status: :unprocessable_entity
