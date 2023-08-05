@@ -207,7 +207,8 @@ class ArticlesController < ApplicationController
             no_of_comments: 0,
             likes: [],
             comments: [],
-            read_time: rtime
+            read_time: rtime,
+            isDraft: permitted_params[:isDraft]
         )
 
         # Attach the 'image' file to the article if present
@@ -231,7 +232,8 @@ class ArticlesController < ApplicationController
             no_of_comments: article.no_of_comments,
             likes: article.likes,
             comments: article.comments,
-            read_time: rtime
+            read_time: article.read_time,
+            isDraft: article.isDraft
             }
 
             render json: response, status: :created
@@ -277,7 +279,8 @@ class ArticlesController < ApplicationController
             no_of_comments: article.no_of_comments,
             likes: article.likes,
             comments: article.comments,
-            read_time: rtime
+            read_time: article.read_time,
+            isDraft: article.isDraft
             }
 
             render json: response
@@ -389,7 +392,7 @@ class ArticlesController < ApplicationController
 
     def article_params
         # Permit only the specific fields from the request parameters
-        params.permit(:title, :author, :description, :genre, :image)
+        params.permit(:title, :author, :description, :genre, :image, :isDraft)
     end
 
     def article_search_params

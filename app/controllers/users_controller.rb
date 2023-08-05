@@ -1,6 +1,6 @@
 # app/controllers/users_controller.rb
 class UsersController < ApplicationController
-    before_action :authenticate_user, only: [:profile, :my_posts, :follow_user,:addLike, :addComment, :recommendedPosts, :similarAuthorPosts, :subscribe, :show]
+    before_action :authenticate_user, only: [:profile, :my_posts, :follow_user,:addLike, :addComment, :recommendedPosts, :similarAuthorPosts, :subscribe, :show, :showDrafts]
 
     def create
 
@@ -59,8 +59,8 @@ class UsersController < ApplicationController
           comments: article.comments,
           views: article.views
         }
-    end
-      render json: response, status: :ok
+      end
+        render json: response, status: :ok
     end
 
     def follow_user
@@ -319,6 +319,37 @@ class UsersController < ApplicationController
       render json: { error: 'Article not found' }, status: :not_found
     end
 
+  end
+
+  def showDrafts
+    author = current_user.author
+      article_ids = author&.article_ids || [] 
+      articles = []
+      article_ids.each do |article_id|
+        article = Article.find_by(id: article_id)
+        if article.isDraft
+          articles.push(article)
+        end
+      end
+      # articles = Article.all
+      response = articles.map do |article|
+        {
+          id: article.id,
+          title: article.title,
+          author: article.author,
+          description: article.description,
+          genre: article.genre,
+          image_url: article.image.attached? ? url_for(article.image) : nil,
+          created_at: article.created_at,
+          updated_at: article.updated_at,
+          no_of_likes: article.no_of_likes,
+          no_of_comments: article.no_of_comments,
+          likes: article.likes,
+          comments: article.comments,
+          views: article.views
+        }
+      end
+        render json: response, status: :ok
   end
 
   private

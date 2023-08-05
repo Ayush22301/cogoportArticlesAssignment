@@ -55,5 +55,7 @@ Rails.application.routes.draw do
   put "/subscribe", to: "users#subscribe"
 
   put "/show", to: "users#show"
+
+  get "/showDrafts", to: "users#showDrafts"
   
 end
