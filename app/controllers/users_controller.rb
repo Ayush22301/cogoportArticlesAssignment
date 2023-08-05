@@ -3,6 +3,11 @@ class UsersController < ApplicationController
     before_action :authenticate_user, only: [:profile, :my_posts, :follow_user,:addLike, :addComment, :recommendedPosts, :similarAuthorPosts, :subscribe, :show]
 
     def create
+
+      if User.exists?(name: user_params[:name]) || User.exists?(email: user_params[:email])
+        render json: { error: 'Name or email already exists. Please choose a different name or email.' }, status: :unprocessable_entity
+        return
+      end
         author = Author.find_or_create_by(name: user_params[:name]) # Create a new author based on the user's name
         @user = User.new(
           name: user_params[:name],
