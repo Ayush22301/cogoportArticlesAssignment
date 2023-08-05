@@ -157,32 +157,38 @@ class ArticlesController < ApplicationController
     
 
     def sort
-        ordr = params.fetch(:order, :asc)
+      sort_by = params.fetch(:sort_by, 'likes') # Default to sorting by likes
+      ordr = params.fetch(:order, :desc) # Default to descending order
     
-        # Perform the sorting based on 'created_at' in ascending or descending order
-        articles = Article.order(created_at: ordr)
+      # Validate the sort_by parameter to avoid SQL injection
+      valid_sort_columns = ['likes', 'comments']
+      sort_by = valid_sort_columns.include?(sort_by) ? sort_by : 'likes'
     
-        # Build a JSON response with image URLs
-        response = articles.map do |article|
-          {
-            id: article.id,
-            title: article.title,
-            author: article.author,
-            description: article.description,
-            genre: article.genre,
-            image_url: article.image.attached? ? url_for(article.image) : nil,
-            created_at: article.created_at,
-            updated_at: article.updated_at,
-            no_of_likes: article.no_of_likes,
-            no_of_comments: article.no_of_comments,
-            likes: article.likes,
-            comments: article.comments,
-            read_time: article.read_time
-          }
-        end
+      # Perform the sorting based on the selected sort column and order
+      articles = Article.order("#{sort_by} #{ordr}")
     
-        render json: response
+      # Build a JSON response with image URLs
+      response = articles.map do |article|
+        {
+          id: article.id,
+          title: article.title,
+          author: article.author,
+          description: article.description,
+          genre: article.genre,
+          image_url: article.image.attached? ? url_for(article.image) : nil,
+          created_at: article.created_at,
+          updated_at: article.updated_at,
+          no_of_likes: article.no_of_likes,
+          no_of_comments: article.no_of_comments,
+          likes: article.likes,
+          comments: article.comments,
+          read_time: article.read_time
+        }
+      end
+    
+      render json: response
     end
+    
 
     def create
          # Permit only the specific fields from the request parameters
