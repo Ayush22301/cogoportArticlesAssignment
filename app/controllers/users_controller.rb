@@ -57,7 +57,8 @@ class UsersController < ApplicationController
           no_of_comments: article.no_of_comments,
           likes: article.likes,
           comments: article.comments,
-          views: article.views
+          views: article.views,
+          isDraft: article.isDraft
         }
       end
         render json: response, status: :ok
