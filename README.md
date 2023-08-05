@@ -29,5 +29,4 @@ Other Author's profile view  ------
 
 
 Pending
-1 article_ids array
-2 update and delete of users
+1 update and delete of users

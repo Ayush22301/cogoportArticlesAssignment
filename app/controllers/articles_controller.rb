@@ -316,12 +316,26 @@ class ArticlesController < ApplicationController
 
     def top_posts
       all_articles = Article.all
-      # top_articles = all_articles.sort_by { |article| -(article.no_of_likes + article.no_of_comments) }
-
+    
       top_articles = all_articles.sort do |a, b|
+        views_comparison = b.views <=> a.views
         likes_comparison = b.no_of_likes <=> a.no_of_likes
-        likes_comparison.zero? ? b.no_of_comments <=> a.no_of_comments : likes_comparison
+        comments_comparison = b.no_of_comments <=> a.no_of_comments
+    
+        if views_comparison.zero?
+          if likes_comparison.zero?
+            comments_comparison
+          else
+            likes_comparison
+          end
+        else
+          views_comparison
+        end
       end
+    
+      render json: top_articles, status: :ok
+    end
+    
 
 
       response = top_articles.map do |article|
