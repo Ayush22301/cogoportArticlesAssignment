@@ -53,12 +53,26 @@ class ArticlesController < ApplicationController
     def filter
       author_name = params.fetch(:author, "")
       title = params.fetch(:title, "")
-      min_likes = params.fetch(:min_likes, nil) # The minimum number of likes
-      max_likes = params.fetch(:max_likes, nil) # The maximum number of likes
-      min_comments = params.fetch(:min_comments, nil) # The minimum number of comments
-      max_comments = params.fetch(:max_comments, nil) # The maximum number of comments
+      min_likes = params.fetch(:min_likes, nil) 
+      max_likes = params.fetch(:max_likes, nil) 
+      min_comments = params.fetch(:min_comments, nil) 
+      max_comments = params.fetch(:max_comments, nil) 
+      start_date = params.fetch(:start_date, nil)
+      end_date = params.fetch(:end_date, nil)
     
       articles = Article.all
+
+      if start_date.present? && end_date.present?
+        start_date = DateTime.parse(start_date)
+        end_date = DateTime.parse(end_date).end_of_day
+        articles = articles.where(created_at: start_date..end_date)
+      elsif start_date.present?
+        start_date = DateTime.parse(start_date)
+        articles = articles.where("created_at >= ?", start_date)
+      elsif end_date.present?
+        end_date = DateTime.parse(end_date).end_of_day
+        articles = articles.where("created_at <= ?", end_date)
+      end
     
       if author_name.present?
         # Find the author by name (case-insensitive search)
@@ -87,13 +101,12 @@ class ArticlesController < ApplicationController
       elsif max_comments.present?
         articles = articles.where("no_of_comments <= ?", max_comments)
       end
-    
-      # Build a JSON response with image URLs
+      
       response = articles.map do |article|
         {
           id: article.id,
           title: article.title,
-          author: article.author.name, # Use the author's name instead of the entire author object
+          author: article.author.name, 
           description: article.description,
           genre: article.genre,
           image_url: article.image.attached? ? url_for(article.image) : nil,
@@ -124,19 +137,17 @@ class ArticlesController < ApplicationController
       articles = articles.where("lower(genre) LIKE ?", "%#{genre.downcase}%") if genre
     
       if author_name.present?
-        # Find the author by name (case-insensitive search)
-        author = Author.find_by("lower(name) = ?", author_name.downcase)
-    
-        # If the author exists, filter articles by the author's ID
-        articles = articles.where(author_id: author.id) if author
+        authors = Author.where("name ILIKE ?", "%#{author_name}%")
+        author_ids = authors.pluck(:id)
+        articles = articles.where(author_id: author_ids) if author_ids.any?
       end
+      
     
-      # Build a JSON response with image URLs
       response = articles.map do |article|
         {
           id: article.id,
           title: article.title,
-          author: article.author.name, # Assuming 'author' is an association in the Article model
+          author: article.author.name, 
           description: article.description,
           genre: article.genre,
           image_url: article.image.attached? ? url_for(article.image) : nil,
@@ -157,17 +168,21 @@ class ArticlesController < ApplicationController
     
 
     def sort
-      sort_by = params.fetch(:sort_by, 'likes') # Default to sorting by likes
+      sort_by = params.fetch(:sort_by, 'likes') 
       ordr = params.fetch(:order, :desc) # Default to descending order
     
-      # Validate the sort_by parameter to avoid SQL injection
       valid_sort_columns = ['likes', 'comments']
       sort_by = valid_sort_columns.include?(sort_by) ? sort_by : 'likes'
+
+      if sort_by == 'likes'
+        sort_by = 'no_of_likes'
+      else
+        sort_by = 'no_of_comments'
+      end
+
     
-      # Perform the sorting based on the selected sort column and order
       articles = Article.order("#{sort_by} #{ordr}")
     
-      # Build a JSON response with image URLs
       response = articles.map do |article|
         {
           id: article.id,
@@ -203,7 +218,6 @@ class ArticlesController < ApplicationController
 
         rtime = wordsCount/200.0
 
-        # Create the article and associate it with the author
         article = Article.new(
             title: permitted_params[:title],
             description: permitted_params[:description],
@@ -286,7 +300,8 @@ class ArticlesController < ApplicationController
             likes: article.likes,
             comments: article.comments,
             read_time: article.read_time,
-            isDraft: article.isDraft
+            isDraft: article.isDraft,
+            views: article.views
             }
 
             revision = Revision.new(
