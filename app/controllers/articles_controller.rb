@@ -1,54 +1,5 @@
 class ArticlesController < ApplicationController
-    def home
-        bpp=params.fetch(:books_per_page, 3).to_i
-        offset=params.fetch(:page, 0).to_i
-
-        if(offset<1)
-            offset=1
-        end
-
-        max_len=Article.all.count
-
-        if(bpp>max_len)
-            bpp=max_len
-        end
-
-        if(max_len==0)
-            bpp=0
-            offset=0
-        else
-            o_max=(max_len/bpp).to_i
-            
-            if(max_len.modulo(bpp)!=0)
-                o_max=((max_len/bpp)+1).to_i
-            end
-
-            if(offset>o_max)
-                offset=o_max
-            end
-        end
-
-        articles = Article.includes(image_attachment: :blob).offset((offset-1)*bpp).limit(bpp)
-        # render json: @articles.offset((@offset-1)*@bpp).limit(@bpp)
-        response = articles.map do |article|
-            {
-              id: article.id,
-              title: article.title,
-              author: article.author,
-              description: article.description,
-              genre: article.genre,
-              image_url: article.image.attached? ? url_for(article.image) : nil,
-              created_at: article.created_at,
-              updated_at: article.updated_at,
-              no_of_likes: article.no_of_likes,
-              no_of_comments: article.no_of_comments,
-              likes: article.likes,
-              comments: article.comments,
-              read_time: article.read_time
-            }
-        end
-        render json: response
-    end
+    
 
     def filter
       author_name = params.fetch(:author, "")
@@ -209,14 +160,15 @@ class ArticlesController < ApplicationController
          # Permit only the specific fields from the request parameters
         permitted_params = article_params
 
-        # Find or create the author based on the author name
+        # create author name if not found
         author = Author.find_or_create_by(name: permitted_params[:author])
 
         des = permitted_params[:description]
 
-        wordsCount = des.split(/\s+/).length
+        wordsCount = des.split(/\s+/).length     #this gives no. of words in the 'description'
 
-        rtime = wordsCount/200.0
+        rtime = wordsCount/200.0         #200 is the avg no. of words I have assumed that can be read in a minute 
+        #rt time is float value with unit minute
 
         article = Article.new(
             title: permitted_params[:title],
@@ -235,10 +187,8 @@ class ArticlesController < ApplicationController
         article.image.attach(permitted_params[:image]) if permitted_params[:image].present?
 
         if article.save
-            # Update the article_ids of the associated author with the new article's ID
             author.update(article_ids: author.article_ids << article.id)
 
-            # Build a JSON response with the image URL for the created article
             response = {
             id: article.id,
             title: article.title,
@@ -365,7 +315,33 @@ class ArticlesController < ApplicationController
     end
 
     
-
+    def home
+      bpp = params.fetch(:books_per_page, 3).to_i
+      offset = [params.fetch(:page, 1).to_i, 1].max
+      max_len = Article.all.count
+      bpp = [bpp, max_len].min
+      o_max = (max_len / bpp.to_f).ceil
+      offset = [offset, o_max].min
+      articles = Article.includes(image_attachment: :blob).offset((offset-1)*bpp).limit(bpp)
+      response = articles.map do |article|
+          {
+            id: article.id,
+            title: article.title,
+            author: article.author,
+            description: article.description,
+            genre: article.genre,
+            image_url: article.image.attached? ? url_for(article.image) : nil,
+            created_at: article.created_at,
+            updated_at: article.updated_at,
+            no_of_likes: article.no_of_likes,
+            no_of_comments: article.no_of_comments,
+            likes: article.likes,
+            comments: article.comments,
+            read_time: article.read_time
+          }
+      end
+      render json: response
+  end
     # def reset_remaining_posts
     #   current_user.update(remaining_posts: current_user.subscription_plan.to_i)
     #   render json: { message: 'Remaining posts reset' }, status: :ok
@@ -427,7 +403,6 @@ class ArticlesController < ApplicationController
     end
 
     def article_search_params
-        # Permit only the 'description' field from the request parameters
         params.permit(:title, :author, :description, :genre)
     end
 end

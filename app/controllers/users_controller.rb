@@ -4,6 +4,10 @@ class UsersController < ApplicationController
 
     def create
 
+      if user_params[:password] != user_params[:password_confirmation]
+        render json: {error:"password and confirm password don't match"} , status: :unprocessable_entity
+        return
+      end
       if User.exists?(name: user_params[:name]) || User.exists?(email: user_params[:email])
         render json: { error: 'Name or email already exists. Please choose a different name or email.' }, status: :unprocessable_entity
         return
