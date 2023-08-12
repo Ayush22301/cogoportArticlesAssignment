@@ -12,7 +12,7 @@ Completed Levels 1 to 5.
 
 ![Subscription Screenshot](images/Screenshot%20(190).png)
 
-###Then localhost:3000/payments
+### Then localhost:3000/payments
 ![Subscription Screenshot](images/Screenshot%20(191).png)
 ![Subscription Screenshot](images/Screenshot%20(194).png)
 ![Subscription Screenshot](images/Screenshot%20(195).png)
