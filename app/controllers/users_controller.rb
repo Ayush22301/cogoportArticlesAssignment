@@ -237,8 +237,9 @@ class UsersController < ApplicationController
     end
       render json: response, status: :ok
   end
+  
 
-  def subscribe
+  def subscribewithoutpayment
     subscription_plan = params[:subscription_plan]
     case subscription_plan
     when 'free'

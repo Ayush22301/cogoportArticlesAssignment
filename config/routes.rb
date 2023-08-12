@@ -52,7 +52,7 @@ Rails.application.routes.draw do
 
   get "/similarAuthorPosts", to: "users#similarAuthorPosts"
 
-  put "/subscribe", to: "users#subscribe"
+  put "/subscribewithoutpayment", to: "users#subscribewithoutpayment"
 
   put "/show", to: "users#show"
 
@@ -70,5 +70,12 @@ Rails.application.routes.draw do
   ###revision history
 
   get "/revision_history", to: "revisions#revision_history"
+
+
+  ###payment
+
+  get '/payments', to: 'payments#payments_page'
+  post '/subscribe', to: 'payments#subscribe'
+  post '/payment_callback', to: 'payments#payment_callback'
   
 end
