@@ -1,5 +1,5 @@
 class ArticlesController < ApplicationController
-    
+  before_action :authenticate_user, only: [:create,:update,:delete]
 
     def filter
       author_name = params.fetch(:author, "")
@@ -160,8 +160,7 @@ class ArticlesController < ApplicationController
          # Permit only the specific fields from the request parameters
         permitted_params = article_params
 
-        # create author name if not found
-        author = Author.find_or_create_by(name: permitted_params[:author])
+        author = Author.find_by(id: current_user.author_id)
 
         des = permitted_params[:description]
 
@@ -214,6 +213,11 @@ class ArticlesController < ApplicationController
 
     def update
         article = Article.find_by(id: params[:id])
+
+        if article.author.id != current_user.author_id
+          render json: {error: "This article doesn't belongs to the current user"}, status: :not_found
+          return
+        end
     
         unless article
           render json: { error: 'Article not found' }, status: :not_found
@@ -272,7 +276,12 @@ class ArticlesController < ApplicationController
 
     def delete
         article = Article.find_by(id: params[:id])
-      
+
+        if article.author.id != current_user.author_id
+          render json: {error: "This article doesn't belongs to the current user"}, status: :not_found
+          return
+        end
+
         if article
           # Get the associated author of the article
           author = article.author
@@ -399,7 +408,7 @@ class ArticlesController < ApplicationController
 
     def article_params
         # Permit only the specific fields from the request parameters
-        params.permit(:title, :author, :description, :genre, :image, :isDraft)
+        params.permit(:title, :description, :genre, :image, :isDraft)
     end
 
     def article_search_params
