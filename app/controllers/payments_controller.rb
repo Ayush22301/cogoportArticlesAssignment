@@ -17,7 +17,7 @@ class PaymentsController < ApplicationController
           amount = 1000 
         end
   
-        # Create a Razorpay order for the payment
+        # Create a Razorpay order for the paymen
         order = Razorpay::Order.create(amount: amount, currency: 'INR')
   
         # Store order details in the session for later verification
