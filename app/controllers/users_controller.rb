@@ -444,7 +444,7 @@ class UsersController < ApplicationController
       arrayids = list.arrayids.split(',')
     end
 
-    render json: {article_ids:arrayids}
+    render json: {list_name:list.list_name,article_ids:arrayids}
   end
 
   private
