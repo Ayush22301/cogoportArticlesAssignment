@@ -41,12 +41,13 @@ class PaymentsController < ApplicationController
         order_id = session[:razorpay_order_id]
         amount = params[:amount].to_i  
     
-        # Construct the payload for signature verification
-        payload = "#{order_id}|#{payment_id}"
+        payment_response = {
+          razorpay_order_id: order_id,
+          razorpay_payment_id: payment_id,
+          razorpay_signature: razorpay_signature
+        }
     
-        # Verify the signature using your Razorpay secret key
-        client = Razorpay::Client.new(secret_key: 'HiHOYb5Xc3IWOoeg6lj8f7kZ')
-        verified = client.utility.verify_payment_signature(payload, razorpay_signature)
+        verified = Razorpay::Utility.verify_payment_signature(payment_response)
     
         if verified && amount == params[:amount]
           # Update your database or grant access to the paid content
