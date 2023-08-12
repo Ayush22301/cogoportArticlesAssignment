@@ -1,7 +1,15 @@
-Completed Level 1 to Level 5
+## Achievements
 
-For Level 4 
-1) Subscription without payment gateway and user data updated ,with route 
-    POST localhost/subscribewithoutpayment
-2) Subscription with payment using Razorpay but done till order generate.
-    POST localhost/subscribe
+Completed Levels 1 to 5.
+
+### Level 4
+1. Subscription Without Payment Gateway
+   - Update user data (e.g., remaining posts of the day, current plan expiry).
+   - Route: `POST localhost/subscribewithoutpayment`
+
+2. Subscription with Payment using Razorpay
+   - Order generation implemented.
+   - Route: `POST localhost/subscribe`
+
+![Subscription Screenshot](Screenshot%20(186).png)
+![payment view](Screenshot%20(185).png)
