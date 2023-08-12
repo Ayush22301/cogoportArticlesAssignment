@@ -3,12 +3,12 @@
 <script>
 var options = {
     key: "rzp_test_Qi9thJUN0Et6ft",
-    amount: <%= @amount %>, 
-    currency: "USD",
+    amount: '500', 
+    currency: "INR",
     name: "Ayush Saxena",
     description: "Subscription Payment",
-    order_id: "<%= @order_id %>",
-    callback_url: "localhost/payment_callback"
+    order_id: "order_MPE6DQEM1A0fkx",
+    callback_url: "http://127.0.0.1:3000/payment_callback"
 };
 
 var rzp = new Razorpay(options);

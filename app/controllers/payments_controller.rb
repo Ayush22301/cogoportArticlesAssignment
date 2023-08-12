@@ -10,11 +10,11 @@ class PaymentsController < ApplicationController
       when '3_posts', '5_posts', '10_posts'
         case subscription_plan
         when '3_posts'
-          amount = 3  # Amount in dollars
+          amount = 300  # Amount in dollars
         when '5_posts'
-          amount = 5  
+          amount = 500  
         when '10_posts'
-          amount = 10 
+          amount = 1000 
         end
   
         # Create a Razorpay order for the payment

@@ -3,13 +3,16 @@
 Completed Levels 1 to 5.
 
 ### Level 4
-1. Subscription Without Payment Gateway
+1. Subscription Without Payment Gateway (just to see other functionalities work)
    - Update user data (e.g., remaining posts of the day, current plan expiry).
    - Route: `POST localhost/subscribewithoutpayment`
 
 2. Subscription with Payment using Razorpay
-   - Order generation implemented.
    - Route: `POST localhost/subscribe`
 
-![Subscription Screenshot](Screenshot%20(185).png)
-![payment view](Screenshot%20(186).png)
+![Subscription Screenshot](images/Screenshot%20(190).png)
+![Subscription Screenshot](images/Screenshot%20(191).png)
+![Subscription Screenshot](images/Screenshot%20(194).png)
+![Subscription Screenshot](images/Screenshot%20(195).png)
+![Subscription Screenshot](images/Screenshot%20(196).png)
+![Subscription Screenshot](images/Screenshot%20(197).png)
