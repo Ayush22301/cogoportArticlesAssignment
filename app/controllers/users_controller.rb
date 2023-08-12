@@ -397,7 +397,8 @@ class UsersController < ApplicationController
   def createlist
     list = List.new(
       user_id: current_user.id,
-      arrayids: params[:articlesid]
+      arrayids: params[:articlesid],
+      list_name: params[:list_name]
     )
     list.save
     render json: list
@@ -409,7 +410,6 @@ class UsersController < ApplicationController
     if list
       arrayids = list.arrayids.split(',')
       articles = Article.where(id: arrayids)
-
       response = articles.map do |article|
         {
           id: article.id,
@@ -428,7 +428,8 @@ class UsersController < ApplicationController
           reading_time: article.read_time
         }
       end
-
+      
+      response.push({list_name:list.list_name})
       render json: response, status: :ok
     else
       render json: { error: 'List not found' }, status: :not_found
